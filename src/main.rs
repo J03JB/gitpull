@@ -1,4 +1,3 @@
-// TODO: add_repo(): if inside git dir, add it to list of repos.
 use clap::Parser;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
