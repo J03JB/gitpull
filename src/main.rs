@@ -16,17 +16,19 @@ struct Opts {
 fn main() {
     let opts = Opts::parse();
 
+    let gr_file_path = format!("{}/.repos", std::env::var("HOME").unwrap());
+
     // add repository to list
     if let Some(repo) = opts.add {
-        add_repo(repo);
+        add_repo(repo, &gr_file_path);
         return;
     }
     if let Some(repo) = opts.delete {
-        del_repo(repo);
+        del_repo(repo, &gr_file_path);
         return;
     }
 
-    let repos = File::open("gr.txt").unwrap();
+    let repos = File::open(&gr_file_path).unwrap();
     let repo = BufReader::new(repos);
 
     // pull repos listed in gr.txt
@@ -51,11 +53,11 @@ fn gitpull(gitrepo: &str) {
     }
 }
 
-fn add_repo(repo: String) {
+fn add_repo(repo: String, gr_file_path: &str) {
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)
-        .open("gr.txt")
+        .open(gr_file_path)
         .expect("failed to open input file");
     let repo = if repo == "." {
         let cwd = std::env::current_dir().unwrap();
@@ -68,8 +70,8 @@ fn add_repo(repo: String) {
 }
 
 // TODO: make "." possible, same as above.
-fn del_repo(repo: String) {
-    let input_file = "gr.txt";
+fn del_repo(repo: String, gr_file_path: &str) {
+    let input_file = gr_file_path;
     let temp_file = "temp.txt";
 
     let mut input = File::open(input_file).expect("failed to open input file");
