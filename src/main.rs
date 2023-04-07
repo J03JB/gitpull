@@ -23,7 +23,7 @@ fn main() {
         return;
     }
     if let Some(repo) = opts.delete {
-        del_repo(repo, &GR_FILE_PATH);
+        del_repo(repo);
         return;
     }
 
@@ -73,11 +73,11 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     Ok(())
 }
 
-fn del_repo(repo: String, gr_file_path: &str) {
+fn del_repo(repo: String) {
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
-        .open(gr_file_path)
+        .open(GR_FILE_PATH)
         .expect("failed to open input file");
 
     let repo = match repo.as_ref() {
