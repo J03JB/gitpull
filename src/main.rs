@@ -60,6 +60,7 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     let file = OpenOptions::new()
         .write(true)
         .append(true)
+        .create(true)
         .open(GR_FILE_PATH);
     // let repo = repo.unwrap_or_else(|| std::env::current_dir().unwrap());
     let repo = if repo == "." {
