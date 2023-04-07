@@ -1,9 +1,6 @@
 use clap::Parser;
 use std::fs::{File, OpenOptions};
-use std::io::SeekFrom;
-use std::io::{BufRead, BufReader};
-use std::io::{Read, Seek, Write};
-use std::path::{Path, PathBuf};
+use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
 use std::process::Command;
 
 #[derive(Parser, Debug)]
@@ -15,62 +12,65 @@ struct Opts {
     delete: Option<String>,
 }
 
+const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
+
 fn main() {
     let opts = Opts::parse();
 
-    let gr_file_path = format!("{}/.repos", std::env::var("HOME").unwrap());
-
     // add repository to list
     if let Some(repo) = opts.add {
-        add_repo(repo, &gr_file_path);
+        add_repo(repo).unwrap();
         return;
     }
     if let Some(repo) = opts.delete {
-        del_repo(repo, &gr_file_path);
+        del_repo(repo, &GR_FILE_PATH);
         return;
     }
 
-    let repos = File::open(&gr_file_path).unwrap();
+    let repos = File::open(GR_FILE_PATH).unwrap();
     let repo = BufReader::new(repos);
 
     // pull repos listed in gr.txt
     for line in repo.lines() {
-        let gitrepo = line.unwrap();
-        gitpull(&gitrepo);
+        let gitrepo = line.unwrap_or_else(|err| {
+            eprint!("Failed to read line from '{}': {}", GR_FILE_PATH, err);
+            std::process::exit(1);
+        });
+        git_pull(&gitrepo);
     }
 }
+fn git_pull(gitrepo: &str) {
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(gitrepo)
+        .arg("pull")
+        .output()
+        .expect("failed to execute git");
 
-fn gitpull(gitrepo: &str) {
-    let mut command = Command::new("git");
-    command.arg("-C").arg(gitrepo).arg("pull");
-    println!("Pulling from {}", gitrepo);
-
-    let output = command.output().expect("failed to pull");
-    if !output.status.success() {
+    if output.status.success() {
+        println!("Git pull succeeded for directory '{}'", gitrepo);
+        println!("Git: {}", String::from_utf8_lossy(&output.stdout));
+    } else {
         eprintln!("Error: Git pull failed for directory '{}'", gitrepo);
         eprintln!("Git: {}", String::from_utf8_lossy(&output.stderr));
-    } else {
-        println!("Git pull succeeded for directory '{}'", gitrepo);
-        // print output to console using stdout
-        println!("Git: {}", String::from_utf8_lossy(&output.stdout));
     }
 }
 
-fn add_repo(repo: String, gr_file_path: &str) {
-    let mut file = OpenOptions::new()
+fn add_repo(repo: String) -> std::io::Result<()> {
+    let file = OpenOptions::new()
         .write(true)
         .append(true)
-        .open(gr_file_path)
-        .expect("failed to open input file");
+        .open(GR_FILE_PATH);
+    // let repo = repo.unwrap_or_else(|| std::env::current_dir().unwrap());
     let repo = if repo == "." {
-        let cwd = std::env::current_dir().unwrap();
+        let cwd = std::env::current_dir()?;
         cwd.to_str().unwrap().to_owned()
     } else {
         repo
     };
-    writeln!(file, "{}", repo).expect("failed to write to input file");
-    // writeln!(file).expect("failed to write to file");
+    writeln!(file?, "{}", repo)?;
     println!("Added '{}' to input file", repo);
+    Ok(())
 }
 
 fn del_repo(repo: String, gr_file_path: &str) {
@@ -80,23 +80,15 @@ fn del_repo(repo: String, gr_file_path: &str) {
         .open(gr_file_path)
         .expect("failed to open input file");
 
-    let repo = if repo == "." {
-        match std::env::current_dir() {
-            Ok(current_dir) => current_dir.display().to_string(),
-            Err(e) => {
-                eprintln!("Failed to get current directory: {}", e);
-                return;
-            }
-        }
-    } else {
-        repo
+    let repo = match repo.as_ref() {
+        "." => std::env::current_dir().unwrap().display().to_string(),
+        _ => repo,
     };
 
     let contents = {
         let mut contents = String::new();
         file.read_to_string(&mut contents)
             .expect("failed to read input file");
-        // contents.trim().to_owned()
         contents
     };
 
