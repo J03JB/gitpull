@@ -1,6 +1,8 @@
 use clap::Parser;
+use dirs::home_dir;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
+use std::path::PathBuf;
 use std::process::Command;
 
 #[derive(Parser, Debug)]
@@ -13,9 +15,11 @@ struct Opts {
 }
 
 const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
-
+// const GR_FILE_PATH: &str = concat!(
 fn main() {
     let opts = Opts::parse();
+
+    // let gr_file_path = home_dir().unwrap().join(".repos");
 
     // add repository to list
     if let Some(repo) = opts.add {
@@ -114,3 +118,9 @@ fn del_repo(repo: String) {
 
     println!("Removed '{}' from input file", repo);
 }
+
+// #[test]
+// fn testing() {
+//     let gr_file_path = home_dir().unwrap().join(".repos");
+//     println!("{}", gr_file_path);
+// }
