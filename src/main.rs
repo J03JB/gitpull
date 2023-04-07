@@ -54,10 +54,10 @@ fn git_pull(gitrepo: &str) {
         .expect("failed to execute git");
 
     if output.status.success() {
-        println!("Git pull succeeded for directory '{}'", gitrepo);
+        println!("Git pull succeeded for '{}'", gitrepo);
         println!("Git: {}", String::from_utf8_lossy(&output.stdout));
     } else {
-        eprintln!("Error: Git pull failed for directory '{}'", gitrepo);
+        eprintln!("Error: Git pull failed for '{}'", gitrepo);
         eprintln!("Git: {}", String::from_utf8_lossy(&output.stderr));
     }
 }
@@ -76,7 +76,7 @@ fn add_repo(repo: String) -> std::io::Result<()> {
         repo
     };
     writeln!(file?, "{}", repo)?;
-    println!("Added '{}' to input file", repo);
+    println!("'{}' was added to {}", repo, GR_FILE_PATH);
     Ok(())
 }
 
