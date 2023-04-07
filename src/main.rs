@@ -27,7 +27,13 @@ fn main() {
         return;
     }
 
-    let repos = File::open(GR_FILE_PATH).unwrap();
+    let repos = File::open(GR_FILE_PATH).unwrap_or_else(|err| {
+        eprint!("No Git repositories found in '{}': {}\n", GR_FILE_PATH, err);
+        eprint!(
+            "Try running 'gpull --add .' from within a git repository, \n or 'gpull --add path/to/repo'"
+        );
+        std::process::exit(1);
+    });
     let repo = BufReader::new(repos);
 
     // pull repos listed in gr.txt
