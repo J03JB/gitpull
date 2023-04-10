@@ -11,7 +11,7 @@ use std::{
 // TODO: switch from deprecated env. to 'dirs' or 'directories'
 const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
 
-fn main() {
+pub fn main() {
     let args = ReposArgs::parse();
 
     let repos = File::open(GR_FILE_PATH)
@@ -21,6 +21,7 @@ fn main() {
     for line in repo.lines() {
         let gitrepo = line.expect(&format!("Failed to read line from '{}'", GR_FILE_PATH));
         if args.pull {
+            println!("Pulling from {} ...\n", gitrepo);
             git_pull(&gitrepo);
         }
     }
@@ -35,10 +36,12 @@ fn main() {
     }
 }
 
-fn git_pull(gitrepo: &str) {
+pub fn git_pull(gitrepo: &str) {
     let output = Command::new("git")
         .arg("-C")
         .arg(gitrepo)
+        .arg("-c")
+        .arg("color.ui=always")
         .arg("pull")
         .output()
         .expect("failed to execute git");
