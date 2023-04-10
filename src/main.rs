@@ -33,6 +33,11 @@ fn main() {
         return;
     }
 
+    // pull specified repository
+    if let Some(repo) = args.pull {
+        git_pull(&repo);
+    }
+
     let repos = File::open(GR_FILE_PATH).unwrap_or_else(|err| {
         eprint!("No Git repositories found in '{}': {}\n", GR_FILE_PATH, err);
         eprint!(

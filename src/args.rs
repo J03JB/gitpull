@@ -4,9 +4,9 @@ use clap::Parser;
 #[clap(version = "0.1", author = "Frees3c")]
 pub struct ReposArgs {
     /// Add repo to list ( ~/.repos )
-    pub add: Option<String>,
+    pub add: String,
     /// Remove repo from list (~/.repos )
-    pub delete: Option<String>,
+    pub delete: String,
     /// Pull all repos in list
-    pub pull: Option<String>,
+    pub pull: String,
 }
