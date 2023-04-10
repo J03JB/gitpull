@@ -70,7 +70,6 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     Ok(())
 }
 
-// FIX: deletion causes the next add to join with last line.
 fn del_repo(repo: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
         .read(true)
@@ -96,6 +95,8 @@ fn del_repo(repo: &str) -> std::io::Result<()> {
         .expect("failed to seek to start of input file");
     file.write_all(new_contents.as_bytes())
         .expect("failed to write to input file");
+    file.write_all("\n".as_bytes())
+        .expect("Failed to write to input file");
     file.flush().expect("failed to flush");
 
     println!("Removed '{}' from input file", repo);
