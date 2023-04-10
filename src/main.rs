@@ -1,32 +1,34 @@
+mod args;
+use args::ReposArgs;
 use clap::Parser;
-use dirs::home_dir;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
-use std::path::PathBuf;
 use std::process::Command;
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Frees3c")]
-struct Opts {
-    #[clap(short, long, value_name = "add directory to list")]
-    add: Option<String>,
-    #[clap(short, long, value_name = "directory to remove from list")]
-    delete: Option<String>,
+pub struct Opts {
+    /// Add repo to list ( ~/.repos )
+    pub add: Option<String>,
+    /// Remove repo from list (~/.repos )
+    pub delete: Option<String>,
+    /// Pull all repos in list
+    pub pull: Option<String>,
 }
 
 const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
 // const GR_FILE_PATH: &str = concat!(
 fn main() {
-    let opts = Opts::parse();
+    let args = ReposArgs::parse();
 
     // let gr_file_path = home_dir().unwrap().join(".repos");
 
     // add repository to list
-    if let Some(repo) = opts.add {
+    if let Some(repo) = args.add {
         add_repo(repo).unwrap();
         return;
     }
-    if let Some(repo) = opts.delete {
+    if let Some(repo) = args.delete {
         del_repo(repo);
         return;
     }
