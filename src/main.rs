@@ -8,6 +8,7 @@ use std::{
     process::Command,
 };
 
+// TODO: switch from deprecated env. to 'dirs' or 'directories'
 const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
 
 fn main() {
@@ -51,6 +52,7 @@ fn git_pull(gitrepo: &str) {
     }
 }
 
+// TODO: abrv path to ~/
 fn add_repo(repo: String) -> std::io::Result<()> {
     let file = OpenOptions::new()
         .write(true)
@@ -68,6 +70,8 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     Ok(())
 }
 
+// TODO: remove repo using keywords, instead of exact match.
+// FIX: deletion causes the next add to join with last line.
 fn del_repo(repo: String) {
     let mut file = OpenOptions::new()
         .read(true)
