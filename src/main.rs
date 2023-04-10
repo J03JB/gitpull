@@ -28,7 +28,7 @@ fn main() {
     if let Some(repo) = args.add {
         add_repo(repo).unwrap();
     } else if let Some(repo) = args.delete {
-        del_repo(repo);
+        del_repo(&repo).unwrap();
     } else {
         eprint!("No command specified.");
         std::process::exit(1);
@@ -70,19 +70,13 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     Ok(())
 }
 
-// TODO: remove repo using keywords, instead of exact match.
 // FIX: deletion causes the next add to join with last line.
-fn del_repo(repo: String) {
+fn del_repo(repo: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
         .open(GR_FILE_PATH)
         .expect("failed to open input file");
-
-    let repo = match repo.as_ref() {
-        "." => std::env::current_dir().unwrap().display().to_string(),
-        _ => repo,
-    };
 
     let contents = {
         let mut contents = String::new();
@@ -93,7 +87,7 @@ fn del_repo(repo: String) {
 
     let new_contents = contents
         .lines()
-        .filter(|line| *line != repo)
+        .filter(|line| !line.trim().ends_with(&repo))
         .collect::<Vec<_>>()
         .join("\n");
 
@@ -105,6 +99,7 @@ fn del_repo(repo: String) {
     file.flush().expect("failed to flush");
 
     println!("Removed '{}' from input file", repo);
+    Ok(())
 }
 
 // #[test]
