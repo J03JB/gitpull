@@ -1,43 +1,36 @@
 mod args;
+
 use args::ReposArgs;
 use clap::Parser;
-use std::fs::{File, OpenOptions};
-use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
-use std::process::Command;
+use std::{
+    fs::{File, OpenOptions},
+    io::{BufRead, BufReader, Read, Seek, SeekFrom, Write},
+    process::Command,
+};
 
 const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
-// const GR_FILE_PATH: &str = concat!(
+
 fn main() {
     let args = ReposArgs::parse();
 
-    let repos = File::open(GR_FILE_PATH).unwrap_or_else(|err| {
-        eprint!("No Git repositories found in '{}': {}\n", GR_FILE_PATH, err);
-        eprint!(
-            "Try running 'gpull --add .' from within a git repository, \n or 'gpull --add path/to/repo'"
-        );
-        std::process::exit(1);
-    });
+    let repos = File::open(GR_FILE_PATH)
+        .expect(&format!("No Git repositories found in '{}'", GR_FILE_PATH));
     let repo = BufReader::new(repos);
 
-    // pull repos listed in gr.txt
     for line in repo.lines() {
-        let gitrepo = line.unwrap_or_else(|err| {
-            eprint!("Failed to read line from '{}': {}", GR_FILE_PATH, err);
-            std::process::exit(1);
-        });
+        let gitrepo = line.expect(&format!("Failed to read line from '{}'", GR_FILE_PATH));
         if args.pull {
             git_pull(&gitrepo);
         }
     }
-    // add repository to list
+
     if let Some(repo) = args.add {
         add_repo(repo).unwrap();
-        return;
-    }
-    // remove repository from list
-    if let Some(repo) = args.delete {
+    } else if let Some(repo) = args.delete {
         del_repo(repo);
-        return;
+    } else {
+        eprint!("No command specified.");
+        std::process::exit(1);
     }
 }
 
@@ -64,7 +57,6 @@ fn add_repo(repo: String) -> std::io::Result<()> {
         .append(true)
         .create(true)
         .open(GR_FILE_PATH);
-    // let repo = repo.unwrap_or_else(|| std::env::current_dir().unwrap());
     let repo = if repo == "." {
         let cwd = std::env::current_dir()?;
         cwd.to_str().unwrap().to_owned()
