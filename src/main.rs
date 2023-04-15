@@ -14,10 +14,6 @@ const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
 pub fn main() {
     let args = ReposArgs::parse();
 
-    let repos = File::open(GR_FILE_PATH)
-        .expect(&format!("No Git repositories found in '{}'", GR_FILE_PATH));
-    let repo = BufReader::new(repos);
-
     if args.pull_all {
         println!("Pulling from all repositories ...\n");
         git_pull(None);
@@ -28,6 +24,9 @@ pub fn main() {
         add_repo(repo).unwrap();
     } else if let Some(repo) = args.delete {
         del_repo(&repo).unwrap();
+    } else if args.list {
+        println!("Tracked Repositories: \n");
+        list_repos();
     } else {
         eprint!("No command specified.");
         std::process::exit(1);
@@ -111,4 +110,13 @@ fn del_repo(repo: &str) -> std::io::Result<()> {
 
     println!("Removed '{}' from input file", repo);
     Ok(())
+}
+
+fn list_repos() {
+    let repos_file = File::open(GR_FILE_PATH).expect(&format!("Failed to open '{}'", GR_FILE_PATH));
+    let repos = BufReader::new(repos_file);
+
+    for lines in repos.lines() {
+        println!("{}", lines.unwrap());
+    }
 }
