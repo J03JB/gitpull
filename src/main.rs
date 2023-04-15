@@ -18,15 +18,13 @@ pub fn main() {
         .expect(&format!("No Git repositories found in '{}'", GR_FILE_PATH));
     let repo = BufReader::new(repos);
 
-    for line in repo.lines() {
-        let gitrepo = line.expect(&format!("Failed to read line from '{}'", GR_FILE_PATH));
-        if args.pull {
-            println!("Pulling from {} ...\n", gitrepo);
-            git_pull(&gitrepo);
-        }
-    }
-
-    if let Some(repo) = args.add {
+    if args.pull_all {
+        println!("Pulling from all repositories ...\n");
+        git_pull(None);
+    } else if let Some(repo_name) = args.pull {
+        println!("{}", repo_name);
+        git_pull(Some(&repo_name));
+    } else if let Some(repo) = args.add {
         add_repo(repo).unwrap();
     } else if let Some(repo) = args.delete {
         del_repo(&repo).unwrap();
@@ -36,22 +34,31 @@ pub fn main() {
     }
 }
 
-pub fn git_pull(gitrepo: &str) {
-    let output = Command::new("git")
-        .arg("-C")
-        .arg(gitrepo)
-        .arg("-c")
-        .arg("color.ui=always")
-        .arg("pull")
-        .output()
-        .expect("failed to execute git");
+pub fn git_pull(repo_name: Option<&str>) {
+    let repos_file = File::open(GR_FILE_PATH).expect(&format!("Failed to open '{}'", GR_FILE_PATH));
+    let repos = BufReader::new(repos_file);
 
-    if output.status.success() {
-        println!("Git pull succeeded for '{}'", gitrepo);
-        println!("Git: {}", String::from_utf8_lossy(&output.stdout));
-    } else {
-        eprintln!("Error: Git pull failed for '{}'", gitrepo);
-        eprintln!("Git: {}", String::from_utf8_lossy(&output.stderr));
+    for line in repos.lines() {
+        let gitrepo = line.expect(&format!("Failed to read line from '{}'", GR_FILE_PATH));
+        if repo_name.is_none() || gitrepo.trim().ends_with(repo_name.unwrap()) {
+            println!("Pulling from {} ...\n", gitrepo);
+            let output = Command::new("git")
+                .arg("-C")
+                .arg(&gitrepo)
+                .arg("-c")
+                .arg("color.ui=always")
+                .arg("pull")
+                .output()
+                .expect("failed to execute git");
+
+            if output.status.success() {
+                println!("Git pull succeeded for '{}'", gitrepo);
+                println!("Git: {}", String::from_utf8_lossy(&output.stdout));
+            } else {
+                eprintln!("Error: Git pull failed for '{}'", gitrepo);
+                eprintln!("Git: {}", String::from_utf8_lossy(&output.stderr));
+            }
+        }
     }
 }
 
@@ -105,9 +112,3 @@ fn del_repo(repo: &str) -> std::io::Result<()> {
     println!("Removed '{}' from input file", repo);
     Ok(())
 }
-
-// #[test]
-// fn testing() {
-//     let gr_file_path = home_dir().unwrap().join(".repos");
-//     println!("{}", gr_file_path);
-// }

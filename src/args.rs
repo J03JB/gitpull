@@ -14,7 +14,10 @@ pub struct ReposArgs {
     /// Remove repo from list (~/.repos )
     #[clap(short, long)]
     pub delete: Option<String>,
-    /// Pull all repos in list
+    /// Pull selected repo from list (~/.repos)
     #[clap(short, long)]
-    pub pull: bool,
+    pub pull: Option<String>,
+    /// Pull from all repos
+    #[clap(long)]
+    pub pull_all: bool,
 }
