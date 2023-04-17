@@ -15,4 +15,6 @@ repos -d "some_repo"    # Removes repo from the list.
 repos -p "some_repo"    # Pull the specified repo in list.
 
 repos --pull-all        # Pulls from all repos in list.
+
+repos -l                # List repos stored in list.
 ```
