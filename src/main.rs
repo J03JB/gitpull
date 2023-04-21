@@ -62,7 +62,6 @@ pub fn git_pull(repo_name: Option<&str>) {
 }
 
 // TODO: abrv path to ~/
-// remove trailing / when adding to .repos / or ignore "/" when deleting.
 fn add_repo(repo: String) -> std::io::Result<()> {
     let file = OpenOptions::new()
         .write(true)
@@ -75,7 +74,7 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     } else {
         repo
     };
-    writeln!(file?, "{}", repo)?;
+    writeln!(file?, "{}", repo.trim_end_matches("/"))?;
     println!("'{}' was added to {}", repo, GR_FILE_PATH);
     Ok(())
 }
