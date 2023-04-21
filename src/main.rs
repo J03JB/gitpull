@@ -23,7 +23,12 @@ pub fn main() {
     } else if let Some(repo) = args.add {
         add_repo(repo).unwrap();
     } else if let Some(repo) = args.delete {
-        del_repo(&repo).unwrap();
+        if let Err(e) = del_repo(&repo) {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        } else {
+            println!("{} has been removed from {}", repo, GR_FILE_PATH)
+        }
     } else if args.list {
         println!("Tracked Repositories: \n");
         list_repos();
@@ -79,20 +84,64 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     Ok(())
 }
 
-// TODO: add error if repo not found in ~/.repos
-fn del_repo(repo: &str) -> std::io::Result<()> {
+// fn del_repo(repo: &str) -> std::io::Result<()> {
+//     let mut file = OpenOptions::new()
+//         .read(true)
+//         .write(true)
+//         .open(GR_FILE_PATH)
+//         .expect("failed to open input file");
+
+//     let contents = {
+//         let mut contents = String::new();
+//         file.read_to_string(&mut contents)?;
+//         // .expect("failed to read input file");
+//         contents
+//     };
+
+//     if !contents.lines().any(|line| line.trim().ends_with(&repo)) {
+//         return Err(std::io::Error::new(
+//             std::io::ErrorKind::NotFound,
+//             format!("'{}' not found in '{}'", repo, GR_FILE_PATH),
+//         ));
+//     }
+
+//     let new_contents = contents
+//         .lines()
+//         .filter(|line| !line.trim().ends_with(&repo))
+//         .collect::<Vec<_>>()
+//         .join("\n");
+
+//     file.set_len(0).expect("failed to truncate input file");
+//     file.seek(SeekFrom::Start(0))
+//         .expect("failed to seek to start of input file");
+//     file.write_all(new_contents.as_bytes())
+//         .expect("failed to write to input file");
+//     file.write_all("\n".as_bytes())
+//         .expect("Failed to write to input file");
+//     file.flush().expect("failed to flush");
+
+//     println!("Removed '{}' from input file", repo);
+//     Ok(())
+// }
+
+pub fn del_repo(repo: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
-        .open(GR_FILE_PATH)
-        .expect("failed to open input file");
+        .open(GR_FILE_PATH)?;
 
     let contents = {
         let mut contents = String::new();
-        file.read_to_string(&mut contents)
-            .expect("failed to read input file");
+        file.read_to_string(&mut contents)?;
         contents
     };
+
+    if !contents.lines().any(|line| line.trim().ends_with(&repo)) {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("'{}' not found in '{}'", repo, GR_FILE_PATH),
+        ));
+    }
 
     let new_contents = contents
         .lines()
@@ -100,16 +149,12 @@ fn del_repo(repo: &str) -> std::io::Result<()> {
         .collect::<Vec<_>>()
         .join("\n");
 
-    file.set_len(0).expect("failed to truncate input file");
-    file.seek(SeekFrom::Start(0))
-        .expect("failed to seek to start of input file");
-    file.write_all(new_contents.as_bytes())
-        .expect("failed to write to input file");
-    file.write_all("\n".as_bytes())
-        .expect("Failed to write to input file");
-    file.flush().expect("failed to flush");
+    file.set_len(0)?;
+    file.seek(SeekFrom::Start(0))?;
+    file.write_all(new_contents.as_bytes())?;
+    file.write_all("\n".as_bytes())?;
+    file.flush()?;
 
-    println!("Removed '{}' from input file", repo);
     Ok(())
 }
 
