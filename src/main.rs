@@ -62,6 +62,7 @@ pub fn git_pull(repo_name: Option<&str>) {
 }
 
 // TODO: abrv path to ~/
+// remove trailing / when adding to .repos / or ignore "/" when deleting.
 fn add_repo(repo: String) -> std::io::Result<()> {
     let file = OpenOptions::new()
         .write(true)
@@ -79,6 +80,7 @@ fn add_repo(repo: String) -> std::io::Result<()> {
     Ok(())
 }
 
+// TODO: add error if repo not found in ~/.repos
 fn del_repo(repo: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
         .read(true)
