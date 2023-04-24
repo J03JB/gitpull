@@ -10,7 +10,6 @@ use crate::{
 
 use clap::Parser;
 
-// TODO: switch from deprecated env. to 'dirs' or 'directories'
 const GR_FILE_PATH: &str = concat!(env!("HOME"), "/.repos");
 
 pub fn main() {
