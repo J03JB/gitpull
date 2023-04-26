@@ -1,7 +1,7 @@
 # Repos
 
 Command line tool written in Rust as a learning project.  
-Repos is a tool for pulling from a list of repos stored in `~/.repos`
+A program to manage and pull from a list of git repositories.
 
 ## Usage
 
@@ -10,7 +10,7 @@ repos -a .              # Adds current directory to list.
 
 repos -a /path/to/repo  # Adds repo to list.
 
-repos -d "some_repo"    # Removes repo from the list.
+repos -r "some_repo"    # Removes repo from the list.
 
 repos -p "some_repo"    # Pull the specified repo in list.
 
