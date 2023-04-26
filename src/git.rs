@@ -14,7 +14,7 @@ pub fn git_pull(repo_name: Option<&str>) {
         let gitrepo = line.expect(&format!("Failed to read line from '{}'", GR_FILE_PATH));
         if repo_name.is_none() || gitrepo.trim().ends_with(repo_name.unwrap()) {
             println!("Pulling from {} ...\n", gitrepo);
-            let output = Command::new("git")
+            let pull = Command::new("git")
                 .arg("-C")
                 .arg(&gitrepo)
                 .arg("-c")
@@ -23,12 +23,12 @@ pub fn git_pull(repo_name: Option<&str>) {
                 .output()
                 .expect("failed to execute git");
 
-            if output.status.success() {
+            if pull.status.success() {
                 println!("Git pull succeeded for '{}'", gitrepo);
-                println!("Git: {}", String::from_utf8_lossy(&output.stdout));
+                println!("Git: {}", String::from_utf8_lossy(&pull.stdout));
             } else {
                 eprintln!("Error: Git pull failed for '{}'", gitrepo);
-                eprintln!("Git: {}", String::from_utf8_lossy(&output.stderr));
+                eprintln!("Git: {}", String::from_utf8_lossy(&pull.stderr));
             }
         }
     }
