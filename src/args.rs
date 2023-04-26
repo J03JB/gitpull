@@ -12,7 +12,7 @@ pub struct ReposArgs {
     #[clap(short, long)]
     pub add: Option<String>,
     /// Remove repo from list (~/.repos )
-    #[clap(short, long)]
+    #[clap(short = 'r', long)]
     pub delete: Option<String>,
     /// List repos in ( ~/.repos )
     #[clap(short, long)]
@@ -21,6 +21,6 @@ pub struct ReposArgs {
     #[clap(short, long)]
     pub pull: Option<String>,
     /// Pull from all repos
-    #[clap(long)]
+    #[clap(short = 'x', long)]
     pub pull_all: bool,
 }
