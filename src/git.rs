@@ -32,7 +32,7 @@ pub fn git_pull_with_threads(repo_name: Option<&str>) {
 
                 let mut stdout = stdout_mutex_clone.lock().unwrap();
                 if pull.status.success() {
-                    writeln!(&mut *stdout, "Git pull succeeded for '{}'", gitrepo).unwrap();
+                    writeln!(&mut *stdout, "Pull succeeded for '{}'", gitrepo).unwrap();
                     writeln!(
                         &mut *stdout,
                         "Git: {}",
@@ -40,7 +40,7 @@ pub fn git_pull_with_threads(repo_name: Option<&str>) {
                     )
                     .unwrap();
                 } else {
-                    writeln!(&mut *stdout, "Error: Git pull failed for '{}'", gitrepo).unwrap();
+                    writeln!(&mut *stdout, "Error: Pull failed for '{}'", gitrepo).unwrap();
                     writeln!(
                         &mut *stdout,
                         "Git: {}",
