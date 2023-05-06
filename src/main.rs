@@ -4,7 +4,7 @@ mod repos;
 
 use crate::{
     args::ReposArgs,
-    git::git_pull,
+    git::git_pull_with_threads,
     repos::{add_repo, del_repo, list_repos},
 };
 
@@ -18,14 +18,14 @@ pub fn main() {
     match args {
         ReposArgs { pull_all: true, .. } => {
             println!("Pulling from all repositories ...\n");
-            git_pull(None);
+            git_pull_with_threads(None);
         }
         ReposArgs {
             pull: Some(repo_name),
             ..
         } => {
-            println!("{}", repo_name);
-            git_pull(Some(&repo_name));
+            println!("Pulling from {}", repo_name);
+            git_pull_with_threads(Some(&repo_name));
         }
         ReposArgs {
             add: Some(repo), ..
