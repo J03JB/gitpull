@@ -8,7 +8,7 @@ use std::{
 
 use crate::GR_FILE_PATH;
 
-pub fn git_pull_with_threads(repo_name: Option<&str>) {
+pub fn git_pull(repo_name: Option<&str>) {
     let repos_file = File::open(GR_FILE_PATH).expect(&format!("Failed to open '{}'", GR_FILE_PATH));
     let repos = BufReader::new(repos_file);
 

@@ -58,7 +58,13 @@ pub fn del_repo(repo: &str) -> std::io::Result<()> {
 }
 
 pub fn list_repos() {
-    let repos_file = File::open(GR_FILE_PATH).expect(&format!("Failed to open '{}'", GR_FILE_PATH));
+    let repos_file = match Result::ok(File::open(GR_FILE_PATH)) {
+        Some(file) => file,
+        None => {
+            println!("Error: File Not Found, {} ", GR_FILE_PATH);
+            return;
+        }
+    };
     let repos = BufReader::new(repos_file);
 
     for lines in repos.lines() {
