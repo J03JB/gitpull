@@ -2,11 +2,7 @@ mod args;
 mod git;
 mod repos;
 
-use crate::{
-    args::ReposArgs,
-    git::git_pull,
-    repos::{add_repo, del_repo, list_repos},
-};
+use crate::args::ReposArgs;
 
 use clap::Parser;
 
@@ -18,24 +14,24 @@ pub fn main() {
     match args {
         ReposArgs { pull_all: true, .. } => {
             println!("Pulling from all repositories ...\n");
-            git_pull(None);
+            git::git_pull(None);
         }
         ReposArgs {
             pull: Some(repo_name),
             ..
         } => {
             println!("Pulling from {}", repo_name);
-            git_pull(Some(&repo_name));
+            git::git_pull(Some(&repo_name));
         }
         ReposArgs {
             add: Some(repo), ..
         } => {
-            add_repo(repo).unwrap();
+            repos::add_repo(repo).unwrap();
         }
         ReposArgs {
             delete: Some(repo), ..
         } => {
-            if let Err(e) = del_repo(&repo) {
+            if let Err(e) = repos::del_repo(&repo) {
                 eprintln!("{}", e);
                 std::process::exit(1);
             } else {
@@ -44,7 +40,7 @@ pub fn main() {
         }
         ReposArgs { list: true, .. } => {
             println!("Tracked Repositories: ");
-            list_repos();
+            repos::list_repos();
         }
         _ => {
             eprint!("No command specified");
