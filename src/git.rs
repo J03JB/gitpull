@@ -9,14 +9,14 @@ use std::{
 use crate::GR_FILE_PATH;
 
 pub fn git_pull(repo_name: Option<&str>) {
-    let repos_file = File::open(GR_FILE_PATH).expect(&format!("Failed to open '{}'", GR_FILE_PATH));
+    let repos_file = File::open(GR_FILE_PATH).unwrap_or_else(|_| panic!("Failed to open '{}'", GR_FILE_PATH));
     let repos = BufReader::new(repos_file);
 
     let mut threads = vec![];
     let stdout_mutex = Arc::new(Mutex::new(std::io::stdout()));
 
     for line in repos.lines() {
-        let gitrepo = line.expect(&format!("Failed to read line from '{}'", GR_FILE_PATH));
+        let gitrepo = line.unwrap_or_else(|_| panic!("Failed to read line from '{}'", GR_FILE_PATH));
         if repo_name.is_none() || gitrepo.trim().ends_with(repo_name.unwrap()) {
             let stdout_mutex_clone = stdout_mutex.clone();
             let thread = thread::spawn(move || {
@@ -32,7 +32,7 @@ pub fn git_pull(repo_name: Option<&str>) {
 
                 let mut stdout = stdout_mutex_clone.lock().unwrap();
                 if pull.status.success() {
-                    writeln!(&mut *stdout, "Pull succeeded for '{}'", gitrepo).unwrap();
+                    writeln!(&mut *stdout, "Pull successful for \x1b[32m'{}'\x1b[39m", gitrepo).unwrap();
                     writeln!(
                         &mut *stdout,
                         "Git: {}",
@@ -40,7 +40,7 @@ pub fn git_pull(repo_name: Option<&str>) {
                     )
                     .unwrap();
                 } else {
-                    writeln!(&mut *stdout, "Error: Pull failed for '{}'", gitrepo).unwrap();
+                    writeln!(&mut *stdout, "Error: Pull failed for \x1b[31m'{}'\x1b[39m", gitrepo).unwrap();
                     writeln!(
                         &mut *stdout,
                         "Git: {}",

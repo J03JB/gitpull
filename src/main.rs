@@ -13,7 +13,7 @@ pub fn main() {
 
     match args {
         ReposArgs { pull_all: true, .. } => {
-            println!("Pulling from all repositories ...\n");
+            println!("\x1b[37;1mPulling from all repositories...\x1b[0m\n");
             git::git_pull(None);
         }
         ReposArgs {
