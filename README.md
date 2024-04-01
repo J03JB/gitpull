@@ -19,3 +19,8 @@ repos -x                # Pulls from all repos in list.
 
 repos -l                # List repos stored in list.
 ```
+
+> Todo:
+>
+> - Add colour to output (green for success, red for error)  
+>
