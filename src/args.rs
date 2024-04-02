@@ -2,7 +2,7 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[clap(
-    version = "0.1.2",
+    version = "0.1.3",
     author = "Frees3c",
     about = "A program to manage and pull from a list of git repositories."
 )]
