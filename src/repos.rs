@@ -38,7 +38,7 @@ pub fn del_repo(repo: &str) -> std::io::Result<()> {
     if !contents.lines().any(|line| line.trim().ends_with(&repo)) {
         return Err(std::io::Error::new(
             std::io::ErrorKind::NotFound,
-            format!("'{}' not found in '{}'", repo, GR_FILE_PATH),
+            [repo, "not found in ", GR_FILE_PATH].join(" "),
         ));
     }
 
